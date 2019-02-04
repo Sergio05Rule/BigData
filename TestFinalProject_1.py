@@ -7,11 +7,16 @@
 # This was done so that the example can be run in local mode
 
 from __future__ import print_function
-
-import sys
-
 from pyspark import SparkContext
 from pyspark.mllib.feature import Word2Vec
+import os
+
+#Cambio variabili d'ambiente
+#/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home
+print (os.environ.get('JAVA_HOME'))
+os.environ["JAVA_HOME"] = "/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home"
+print (os.environ.get('JAVA_HOME'))
+
 
 '''
 USAGE = ("bin/spark-submit --driver-memory 4g "
@@ -31,10 +36,12 @@ sc = SparkContext(appName='Word2Vec')
 inp = sc.textFile(file_path).map(lambda row: row.split(" "))
 
 word2vec = Word2Vec()
-model = word2vec.fit(inp)
+#model = word2vec.fit(inp)
+model = word2vec.setVectorSize(500).setWindowSize(10).fit(inp) #test finestra visione parola a 10
 
 synonyms = model.findSynonyms('robin', 20)
 
 for word, cosine_distance in synonyms:
     print("{}: {}".format(word, cosine_distance))
+
 sc.stop()
